@@ -48,3 +48,10 @@ timing/
 *example*
 *sopc_*
 PLLJ_PLLSPE_INFO.txt # The generated PLL specification file
+
+# cocotb simulation
+build/
+sim_build/sim.vvp
+results.xml
+
+*.pyc
