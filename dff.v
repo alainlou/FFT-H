@@ -1,4 +1,4 @@
-  module dff (clk, rst, d, q);
+module dff (clk, rst, d, q);
   input	clk, rst, d;
   output q;
   
