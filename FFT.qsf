@@ -18,14 +18,14 @@
 #
 # Quartus Prime
 # Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-# Date created = 22:29:42  October 28, 2019
+# Date created = 20:31:49  December 11, 2019
 #
 # -------------------------------------------------------------------------- #
 #
 # Notes:
 #
 # 1) The default values for assignments are stored in the file:
-#		FFT-H_top_assignment_defaults.qdf
+#		FFT_assignment_defaults.qdf
 #    If this file doesn't exist, see file:
 #		assignment_defaults.qdf
 #
@@ -38,14 +38,24 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6E22C8
-set_global_assignment -name TOP_LEVEL_ENTITY "FFT-H_top"
+set_global_assignment -name TOP_LEVEL_ENTITY FFT
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:29:42  OCTOBER 28, 2019"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:31:49  DECEMBER 11, 2019"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
-set_global_assignment -name VERILOG_FILE "FFT-H_top.v"
+set_global_assignment -name VERILOG_FILE FFT.v
+set_global_assignment -name VERILOG_FILE components/dff.v
 set_global_assignment -name VERILOG_FILE components/f_adder.v
+set_global_assignment -name VERILOG_FILE components/h_adder.v
+set_location_assignment PIN_87 -to l1
+set_instance_assignment -name IO_STANDARD "2.5 V" -to l1
+set_location_assignment PIN_88 -to s1
+set_instance_assignment -name IO_STANDARD "2.5 V" -to s1
+set_location_assignment PIN_89 -to s2
+set_instance_assignment -name IO_STANDARD "2.5 V" -to s2
+set_location_assignment PIN_23 -to clk
+set_location_assignment PIN_25 -to rst
