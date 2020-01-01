@@ -1,10 +1,10 @@
 module uart_rx
-    #(parameter CLK_TICKSPER_BIT)
+    #(parameter TICKS_PER_BIT = 64)
     (
     input        i_clk,
-    input        i_rx_serial;
-    output       o_rx_flag;
-    output [7:0] o_rx_byte;
+    input        i_rx_serial,
+    output       o_rx_flag,
+    output [7:0] o_rx_byte
     );
     
     parameter s_IDLE  = 3'b000;
@@ -16,17 +16,17 @@ module uart_rx
     reg r_data_r = 1'b1;
     reg r_data   = 1'b1;
     
-    reg [7:0] r_clk_count   = 0;
-    reg [2:0] r_write_idx   = 0;
-    reg [7:0] r_byte        = 0;
-    reg       r_rx_flag     = 0;
-    reg [2:0] r_state       = 0;
+    reg [7:0] r_clk_count = 0;
+    reg [2:0] r_write_idx = 0;
+    reg [7:0] r_byte      = 0;
+    reg       r_flag      = 0;
+    reg [2:0] r_state     = 0;
     
     // Double-register the data
     always @(posedge i_clk)
       begin
         r_data_r <= i_rx_serial;
-        r_data   <= r_rx_data_r;
+        r_data   <= r_data_r;
       end
     
     // Main state machine
@@ -35,7 +35,7 @@ module uart_rx
         case (r_state)
           s_IDLE:
             begin
-              r_rx_flag   <= 1'b0;
+              r_flag   <= 1'b0;
               r_clk_count <= 0;
               r_write_idx <= 0;
             
@@ -47,13 +47,74 @@ module uart_rx
             
           s_START:
             begin
+              if (r_clk_count == (TICKS_PER_BIT-1)/2)
+                begin
+                  if (r_data == 1'b0)
+                    begin
+                      r_clk_count <= 0;
+                      r_state <= s_DATA;
+                    end
+                  else
+                    r_state <= s_IDLE;
+                end
+              else
+                begin
+                  r_clk_count <= r_clk_count;
+                  r_state <= s_START;
+                end
             end
           
+          s_DATA:
+            begin
+              if (r_clk_count < TICKS_PER_BIT-1)
+                begin
+                  r_clk_count <= r_clk_count + 1;
+                  r_state = s_DATA;
+                end
+              else
+                begin
+                  r_clk_count <= 0;
+                  r_byte[r_write_idx] <= r_data;
+                  
+                  if (r_write_idx < 7)
+                    begin
+                      r_write_idx <= r_write_idx + 1;
+                      r_state <= s_DATA;
+                    end
+                  else
+                    begin
+                      r_write_idx = 0;
+                      r_state <= s_STOP;
+                    end
+                end
+            end
+          
+          s_STOP:
+            begin
+              if (r_clk_count < TICKS_PER_BIT-1)
+                begin
+                  r_clk_count <= r_clk_count + 1;
+                  r_state <= s_STOP;
+                end
+              else
+                begin
+                  r_flag <= 1'b1;
+                  r_clk_count <= 0;
+                  r_state <= s_DONE;
+                end
+            end
+            
+            s_DONE:
+              begin
+                r_flag <= 1'b0;
+                r_state <= s_IDLE;
+              end
+          
           default:
-            r_state <= s_IDLE
+            r_state <= s_IDLE;
         endcase
       end
     
-    assign o_rx_flag = r_rx_flag;
-    assign o_rx_byte = r_rx_byte;
+    assign o_rx_flag = r_flag;
+    assign o_rx_byte = r_byte;
 endmodule
