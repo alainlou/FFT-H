@@ -1,5 +1,5 @@
 module uart_rx
-    #(parameter TICKS_PER_BIT = 64)
+    #(parameter TICKS_PER_BIT = 128)
     (
     input        i_clk,
     input        i_rx_serial,
@@ -8,10 +8,10 @@ module uart_rx
     );
     
     parameter s_IDLE  = 3'b000;
-    parameter s_START = 3'b000;
-    parameter s_DATA  = 3'b000;
-    parameter s_STOP  = 3'b000;
-    parameter s_DONE  = 3'b000;
+    parameter s_START = 3'b001;
+    parameter s_DATA  = 3'b010;
+    parameter s_STOP  = 3'b011;
+    parameter s_DONE  = 3'b100;
     
     reg r_data_r = 1'b1;
     reg r_data   = 1'b1;
@@ -19,7 +19,7 @@ module uart_rx
     reg [7:0] r_clk_count = 0;
     reg [2:0] r_write_idx = 0;
     reg [7:0] r_byte      = 0;
-    reg       r_flag      = 0;
+    reg       r_flag      = 1;
     reg [2:0] r_state     = 0;
     
     // Double-register the data
@@ -35,7 +35,7 @@ module uart_rx
         case (r_state)
           s_IDLE:
             begin
-              r_flag   <= 1'b0;
+              r_flag   <= 1'b1;
               r_clk_count <= 0;
               r_write_idx <= 0;
             
@@ -98,7 +98,7 @@ module uart_rx
                 end
               else
                 begin
-                  r_flag <= 1'b1;
+                  r_flag <= 1'b0;
                   r_clk_count <= 0;
                   r_state <= s_DONE;
                 end
@@ -106,7 +106,7 @@ module uart_rx
             
             s_DONE:
               begin
-                r_flag <= 1'b0;
+                r_flag <= 1'b1;
                 r_state <= s_IDLE;
               end
           
