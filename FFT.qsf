@@ -48,6 +48,7 @@ set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
 set_global_assignment -name VERILOG_FILE FFT.v
+set_global_assignment -name VERILOG_FILE components/butterfly.v
 set_global_assignment -name VERILOG_FILE components/f_adder.v
 set_global_assignment -name VERILOG_FILE components/h_adder.v
 set_global_assignment -name VERILOG_FILE components/uart_rx.v
