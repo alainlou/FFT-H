@@ -51,6 +51,7 @@ set_global_assignment -name VERILOG_FILE FFT.v
 set_global_assignment -name VERILOG_FILE components/butterfly.v
 set_global_assignment -name VERILOG_FILE components/f_adder.v
 set_global_assignment -name VERILOG_FILE components/h_adder.v
+set_global_assignment -name VERILOG_FILE components/twiddle_lut.v
 set_global_assignment -name VERILOG_FILE components/uart_rx.v
 set_location_assignment PIN_87 -to l1
 set_instance_assignment -name IO_STANDARD "2.5 V" -to l1
