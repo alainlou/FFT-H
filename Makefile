@@ -1,4 +1,4 @@
-VERILOG_SOURCES = $(PWD)/components/dff.v
+VERILOG_SOURCES = $(find . -name '*.v -o -name *.sv )
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file:
 TOPLEVEL=dff
 # MODULE is the name of the Python test file:
