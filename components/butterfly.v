@@ -1,73 +1,35 @@
 module butterfly
-  #(parameter WIDTH = 8)
   (
-  input                     i_clk,
-  input                     i_enable,
-  input signed [WIDTH-1:0]  i_w_re,
-  input signed [WIDTH-1:0]  i_w_im,
-  input signed [WIDTH-1:0]  i_xa_re,
-  input signed [WIDTH-1:0]  i_xa_im,
-  input signed [WIDTH-1:0]  i_xb_re,
-  input signed [WIDTH-1:0]  i_xb_im,
-  output signed [WIDTH-1:0] o_ya_re,
-  output signed [WIDTH-1:0] o_ya_im,
-  output signed [WIDTH-1:0] o_yb_re,
-  output signed [WIDTH-1:0] o_yb_im
+  input unsigned [1:0]  i_w_re_mag,
+  input wire            i_w_re_neg,
+  input unsigned [1:0]  i_w_im_mag,
+  input wire            i_w_im_neg,
+  input signed [8:0]    i_xa_re,
+  input signed [8:0]    i_xa_im,
+  input signed [8:0]    i_xb_re,
+  input signed [8:0]    i_xb_im,
+  output signed [8:0]   o_ya_re,
+  output signed [8:0]   o_ya_im,
+  output signed [8:0]   o_yb_re,
+  output signed [8:0]   o_yb_im
   );
   
-  parameter s_IDLE   = 2'b00;
-  parameter s_STAGE1 = 2'b01;
-  parameter s_STAGE2 = 2'b10;
-  parameter s_STAGE3 = 2'b11;
+  // http://www.alwayslearn.com/DFT%20and%20FFT%20Tutorial/DFTandFFT_FFT_Butterfly_8_Input.html
+  // straight is the horizontal connection of the bottom of the pair
+  // cross is the diagonal connection
+  wire signed [8:0] re1;
+  wire signed [8:0] re2;
+  wire signed [8:0] im1;  
+  wire signed [8:0] im2;
   
-  reg signed [WIDTH-1:0] r_tmp_re = 0;
-  reg signed [WIDTH-1:0] r_tmp_im = 0;
-  reg signed [WIDTH-1:0] r_a_re   = 0;
-  reg signed [WIDTH-1:0] r_a_im   = 0;
-  reg signed [WIDTH-1:0] r_b_re   = 0;
-  reg signed [WIDTH-1:0] r_b_im   = 0;
-  reg [1:0] r_state               = 0;
+  multiply m0(i_xb_re, i_w_re_mag, i_w_re_neg, re1);
+  multiply m1(i_xb_re, i_w_im_mag, i_w_im_neg, im1);
+  multiply m2(i_xb_im, i_w_re_mag, i_w_re_neg, im2);
+  multiply m3(i_xb_im, i_w_im_mag, i_w_im_neg, re2);
   
-  always @(posedge i_clk)
-    begin
-      case (r_state)
-        s_IDLE:
-          begin
-            if (i_enable)
-              r_state <= s_STAGE1;
-            else
-              r_state <= s_IDLE;
-          end
-          
-        s_STAGE1:
-          begin
-            r_tmp_re <= (i_w_re * i_xb_re + i_w_im * i_xb_im)/10;
-            r_tmp_im <= (i_w_re * i_xb_im + i_w_im * i_xb_re)/10;
-            r_state  <= s_STAGE2;
-          end
-          
-        s_STAGE2:
-          begin
-            r_a_re <= i_xa_re + r_tmp_re;
-            r_a_im <= i_xa_im + r_tmp_im;
-            r_b_re <= i_xa_re - r_tmp_re;
-            r_b_re <= i_xa_re - r_tmp_im;
-            r_state <= s_STAGE3;
-          end
-        
-        s_STAGE3:
-          begin
-            r_state <= s_IDLE;
-          end
-          
-        default:
-          r_state <= s_IDLE;
-      endcase
-    end
-  
-  assign o_ya_re = r_a_re;
-  assign o_ya_im = r_a_im;
-  assign o_b_re = r_b_re;
-  assign o_b_im = r_b_im;
+  assign o_ya_re = i_xa_re + re1 + re2;
+  assign o_ya_im = i_xa_im + im1 + im2;
+  assign o_yb_re = i_xa_re - re1 - re2;
+  assign o_yb_im = i_xa_im - im1 - im2;
 endmodule
   
